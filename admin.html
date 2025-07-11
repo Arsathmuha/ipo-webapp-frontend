@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel - IPO Management</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .form-control, .form-select { margin-bottom: 12px; }
+    .table img { height: 30px; }
+  </style>
+</head>
+<body class="bg-light">
+
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center">
+    <h2 class="mb-4">Admin Panel - Manage IPOs</h2>
+    <button class="btn btn-outline-danger" onclick="logout()">Logout</button>
+  </div>
+
+  <a href="index.html" class="btn btn-outline-secondary mb-3">← Back to Home</a>
+
+  <!-- 🧾 IPO Form -->
+  <form id="ipoForm">
+    <div class="row">
+      <div class="col-md-4">
+        <input type="hidden" id="ipoId">
+        <input type="text" id="companyName" class="form-control" placeholder="Company Name" required>
+        <input type="text" id="priceBand" class="form-control" placeholder="Price Band">
+        <input type="text" id="issueSize" class="form-control" placeholder="Issue Size">
+        <input type="text" id="issueType" class="form-control" placeholder="Issue Type">
+      </div>
+      <div class="col-md-4">
+        <input type="date" id="openDate" class="form-control">
+        <input type="date" id="closeDate" class="form-control">
+        <input type="date" id="listingDate" class="form-control">
+        <select id="status" class="form-select">
+          <option value="upcoming">Upcoming</option>
+          <option value="ongoing">Ongoing</option>
+          <option value="listed">Listed</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <input type="number" id="ipoPrice" class="form-control" placeholder="IPO Price">
+        <input type="number" id="listingPrice" class="form-control" placeholder="Listing Price">
+        <input type="number" id="currentPrice" class="form-control" placeholder="Current Market Price">
+        <button type="submit" class="btn btn-success w-100 mt-2">Save IPO</button>
+      </div>
+    </div>
+  </form>
+
+  <!-- 📋 IPO Table -->
+  <h4 class="mt-4">IPO List</h4>
+  <table class="table table-bordered table-hover bg-white">
+    <thead>
+      <tr>
+        <th>Company</th>
+        <th>Price Band</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="ipoTableBody"></tbody>
+  </table>
+</div>
+
+<script>
+// 🔐 Block direct access
+if (localStorage.getItem("isLoggedIn") !== "true") {
+  window.location.href = "login.html";
+}
+
+// 📋 Dummy IPO list
+let ipoList = [
+  {
+    id: 1,
+    company_name: "BlueStock Ltd",
+    price_band: "₹100 - ₹120",
+    issue_size: "₹500 Cr",
+    issue_type: "Book Built",
+    open_date: "2025-06-20",
+    close_date: "2025-06-25",
+    listing_date: "2025-07-01",
+    status: "upcoming",
+    ipo_price: 110,
+    listing_price: 120,
+    current_market_price: 125
+  }
+];
+
+// 🔁 Render IPOs
+function renderTable() {
+  const tbody = document.getElementById("ipoTableBody");
+  tbody.innerHTML = "";
+
+  ipoList.forEach(ipo => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${ipo.company_name}</td>
+      <td>${ipo.price_band}</td>
+      <td><span class="badge bg-${ipo.status === 'upcoming' ? 'secondary' : ipo.status === 'ongoing' ? 'warning' : 'success'}">${ipo.status}</span></td>
+      <td>
+        <button class="btn btn-sm btn-primary" onclick="editIPO(${ipo.id})">Edit</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteIPO(${ipo.id})">Delete</button>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+// 📝 Save IPO
+document.getElementById("ipoForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  const id = document.getElementById("ipoId").value;
+  const newIPO = {
+    id: id ? parseInt(id) : Date.now(),
+    company_name: document.getElementById("companyName").value,
+    price_band: document.getElementById("priceBand").value,
+    issue_size: document.getElementById("issueSize").value,
+    issue_type: document.getElementById("issueType").value,
+    open_date: document.getElementById("openDate").value,
+    close_date: document.getElementById("closeDate").value,
+    listing_date: document.getElementById("listingDate").value,
+    status: document.getElementById("status").value,
+    ipo_price: parseFloat(document.getElementById("ipoPrice").value),
+    listing_price: parseFloat(document.getElementById("listingPrice").value),
+    current_market_price: parseFloat(document.getElementById("currentPrice").value)
+  };
+
+  if (id) {
+    const index = ipoList.findIndex(ipo => ipo.id == id);
+    ipoList[index] = newIPO;
+  } else {
+    ipoList.push(newIPO);
+  }
+
+  this.reset();
+  renderTable();
+});
+
+// ✏️ Edit IPO
+function editIPO(id) {
+  const ipo = ipoList.find(i => i.id === id);
+  document.getElementById("ipoId").value = ipo.id;
+  document.getElementById("companyName").value = ipo.company_name;
+  document.getElementById("priceBand").value = ipo.price_band;
+  document.getElementById("issueSize").value = ipo.issue_size;
+  document.getElementById("issueType").value = ipo.issue_type;
+  document.getElementById("openDate").value = ipo.open_date;
+  document.getElementById("closeDate").value = ipo.close_date;
+  document.getElementById("listingDate").value = ipo.listing_date;
+  document.getElementById("status").value = ipo.status;
+  document.getElementById("ipoPrice").value = ipo.ipo_price;
+  document.getElementById("listingPrice").value = ipo.listing_price;
+  document.getElementById("currentPrice").value = ipo.current_market_price;
+}
+
+// 🗑️ Delete IPO
+function deleteIPO(id) {
+  if (confirm("Are you sure you want to delete this IPO?")) {
+    ipoList = ipoList.filter(ipo => ipo.id !== id);
+    renderTable();
+  }
+}
+
+// 🔓 Logout
+function logout() {
+  localStorage.clear();
+  window.location.href = "login.html";
+}
+
+renderTable();
+</script>
+
+</body>
+</html>

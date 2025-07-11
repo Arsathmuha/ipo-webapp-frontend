@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>IPO Detail</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-4">
+  <a href="index.html" class="btn btn-secondary mb-4">← Back to Home</a>
+
+  <div id="ipo-detail" class="card shadow p-4">
+    <h2>Loading IPO Details...</h2>
+  </div>
+</div>
+
+<script>
+// Dummy IPO Data (same as script.js — you could move to shared data file later)
+const ipoData = [
+  {
+    id: 1,
+    company_name: "BlueStock Ltd",
+    logo: "assets/logo.png",
+    price_band: "₹100 - ₹120",
+    open_date: "2025-06-20",
+    close_date: "2025-06-25",
+    issue_size: "₹500 Cr",
+    issue_type: "Book Built Issue",
+    listing_date: "2025-07-01",
+    status: "upcoming",
+    ipo_price: 110,
+    listing_price: 120,
+    current_market_price: 125,
+    rhp_pdf: "#",
+    drhp_pdf: "#"
+  },
+  {
+    id: 2,
+    company_name: "GrowVest Corp",
+    logo: "assets/logo.png",
+    price_band: "₹150 - ₹170",
+    open_date: "2025-06-10",
+    close_date: "2025-06-14",
+    issue_size: "₹800 Cr",
+    issue_type: "Fixed Price Issue",
+    listing_date: "2025-06-20",
+    status: "listed",
+    ipo_price: 160,
+    listing_price: 175,
+    current_market_price: 168,
+    rhp_pdf: "#",
+    drhp_pdf: "#"
+  }
+];
+
+// Get ID from URL
+const params = new URLSearchParams(window.location.search);
+const ipoId = parseInt(params.get("id"));
+
+const ipo = ipoData.find(item => item.id === ipoId);
+
+function calculateReturn(listingPrice, ipoPrice) {
+  if (!listingPrice || !ipoPrice) return "N/A";
+  return ((listingPrice - ipoPrice) / ipoPrice * 100).toFixed(2) + "%";
+}
+
+function renderIPODetail() {
+  const container = document.getElementById("ipo-detail");
+
+  if (!ipo) {
+    container.innerHTML = "<h4>IPO not found</h4>";
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="row">
+      <div class="col-md-3">
+        <img src="${ipo.logo}" alt="${ipo.company_name}" class="img-fluid mb-3">
+      </div>
+      <div class="col-md-9">
+        <h3>${ipo.company_name}</h3>
+        <p><strong>Price Band:</strong> ${ipo.price_band}</p>
+        <p><strong>Open Date:</strong> ${ipo.open_date}</p>
+        <p><strong>Close Date:</strong> ${ipo.close_date}</p>
+        <p><strong>Issue Size:</strong> ${ipo.issue_size}</p>
+        <p><strong>Issue Type:</strong> ${ipo.issue_type}</p>
+        <p><strong>Listing Date:</strong> ${ipo.listing_date}</p>
+        <p><strong>Status:</strong> ${ipo.status}</p>
+        <p><strong>IPO Price:</strong> ₹${ipo.ipo_price}</p>
+        <p><strong>Listing Price:</strong> ₹${ipo.listing_price}</p>
+        <p><strong>Current Market Price:</strong> ₹${ipo.current_market_price}</p>
+        <p><strong>Listing Gain:</strong> ${calculateReturn(ipo.listing_price, ipo.ipo_price)}</p>
+        <p><strong>Current Return:</strong> ${calculateReturn(ipo.current_market_price, ipo.ipo_price)}</p>
+        <a href="${ipo.rhp_pdf}" class="btn btn-outline-primary me-2">Download RHP</a>
+        <a href="${ipo.drhp_pdf}" class="btn btn-outline-secondary">Download DRHP</a>
+      </div>
+    </div>
+  `;
+}
+
+renderIPODetail();
+</script>
+
+</body>
+</html>
